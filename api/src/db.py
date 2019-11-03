@@ -3,6 +3,7 @@ import os
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from typing import Callable
 
 from dse.auth import PlainTextAuthProvider
 from dse.cluster import Cluster
@@ -54,7 +55,8 @@ class CompetitionDatabase:
         flights = []
         pilots = set()
         for row in rows:
-            if not row.valid or (groups and row.group not in groups):
+            group_excluded = groups and row.group not in groups
+            if not row.valid or group_excluded:
                 continue
             pilot = Pilot(row.name, row.org_college, row.major, row.group)
             # ensure each pilot is represented only once
@@ -75,12 +77,21 @@ class CompetitionDatabase:
         return self.session.execute("select * from competition.positional group by flight_id")
 
     def get_groups(self) -> set:
+        return self._get_unique_column_values(lambda row: row.group)
+
+    def get_majors(self) -> set:
+        return self._get_unique_column_values(lambda row: row.major)
+
+    def get_orgs(self) -> set:
+        return self._get_unique_column_values(lambda row: row.org_college)
+
+    def _get_unique_column_values(self, extract_field: Callable) -> set:
         rows = self.get_flights()
-        groups = set()
+        values = set()
         for row in rows:
             if row.valid:
-                groups.add(row.group)
-        return groups
+                values.add(extract_field(row))
+        return values
 
     def get_pilots(self) -> set:
         rows = self.get_flights()

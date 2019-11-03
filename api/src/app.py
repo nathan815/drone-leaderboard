@@ -41,12 +41,17 @@ def leaderboard():
     return jsonify(db.get_flights_sorted_by_duration(limit, groups))
 
 
-@app.route('/groups')
-def all_groups():
+@app.route('/filter_values')
+def get_filter_options():
     """
-    Outputs JSON array of all groups present in flight data
+    Outputs JSON object containing all the filter values for groups, majors, and organizations
     """
-    return jsonify(list(db.get_groups()))
+    filter_options = {
+        'groups': list(db.get_groups()),
+        'majors': list(db.get_majors()),
+        'organizations': list(db.get_orgs()),
+    }
+    return jsonify(filter_options)
 
 
 @app.route('/pilots')
