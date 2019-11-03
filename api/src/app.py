@@ -21,20 +21,39 @@ db = CompetitionDatabase(get_cluster())
 print('Connected')
 
 
-@app.route('/flights')
-def flights():
-    maximum_flights = 50
-    limit: int = min(int(request.args.get('limit', 10)), maximum_flights)
-    return jsonify(db.get_flights_sorted_by_duration(limit))
+@app.route('/leaderboard')
+def leaderboard():
+    """
+    Outputs JSON array of best flights by duration
+    URL query params:
+    - limit: int 1-50, default=10
+    - groups: comma separated list of pilot groups to include
+    example:
+    /leaderboard?limit=20&groups=faculty,students
+    """
+    default_limit = 10
+    min_limit = 1
+    max_limit = 50
+    limit_input: int = int(request.args.get('limit', default_limit))
+    limit = max(min(limit_input, max_limit), min_limit)
+    group_filter: str = request.args.get('groups', None)
+    groups = set(group_filter.split(',')) if group_filter else None
+    return jsonify(db.get_flights_sorted_by_duration(limit, groups))
 
 
 @app.route('/groups')
-def groups():
+def all_groups():
+    """
+    Outputs JSON array of all groups present in flight data
+    """
     return jsonify(list(db.get_groups()))
 
 
 @app.route('/pilots')
-def pilots():
+def all_pilots():
+    """
+    Outputs JSON array of all pilots present in flight data
+    """
     return jsonify(list(db.get_pilots()))
 
 

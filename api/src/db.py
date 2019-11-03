@@ -44,7 +44,7 @@ class CompetitionDatabase:
     def __init__(self, cluster: Cluster):
         self.session = cluster.connect('competition')
 
-    def get_flights_sorted_by_duration(self, limit: int = None) -> list:
+    def get_flights_sorted_by_duration(self, limit: int = None, groups: set = None) -> list:
         cql = "select flight_id, toTimestamp(flight_id) as start_ts, latest_ts, " \
               "       valid, station_id, name, org_college, major, group " \
               "from competition.positional " \
@@ -54,7 +54,7 @@ class CompetitionDatabase:
         flights = []
         pilots = set()
         for row in rows:
-            if not row.valid:
+            if not row.valid or (groups and row.group not in groups):
                 continue
             pilot = Pilot(row.name, row.org_college, row.major, row.group)
             # ensure each pilot is represented only once
@@ -78,12 +78,14 @@ class CompetitionDatabase:
         rows = self.get_flights()
         groups = set()
         for row in rows:
-            groups.add(row.group)
+            if row.valid:
+                groups.add(row.group)
         return groups
 
     def get_pilots(self) -> set:
         rows = self.get_flights()
         pilots = set()
         for row in rows:
-            pilots.add(Pilot(row.name, row.org_college, row.major, row.group))
+            if row.valid:
+                pilots.add(Pilot(row.name, row.org_college, row.major, row.group))
         return pilots
