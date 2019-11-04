@@ -8,14 +8,15 @@ import Checkbox from "./Checkbox.js"
 class App extends React.Component {
     componentWillMount = () => {
         this.selectedCheckboxes = new Set();
-    }
+    };
+
     toggleCheckbox = label => {
         if (this.selectedCheckboxes.has(label)) {
             this.selectedCheckboxes.delete(label);
         } else {
             this.selectedCheckboxes.add(label);
         }
-    }
+    };
 
     handleFormSubmit = formSubmitEvent => {
         formSubmitEvent.preventDefault();
@@ -23,30 +24,27 @@ class App extends React.Component {
         for (const checkbox of this.selectedCheckboxes) {
             console.log(checkbox, 'is selected.');
         }
-    }
+    };
 
     createCheckbox = label => {
-        if (label == "") {
-            label = "NA";
+        if (label === "") {
+            label = "N/A";
         }
         return (<Checkbox
             label={label}
             handleCheckboxChange={this.toggleCheckbox}
             key={label}
         />)
-    }
-
+    };
 
     createCheckboxes = (items) => (
         items.map(this.createCheckbox)
-    )
+    );
 
     render() {
-
         const data1 = data.slice(0, 3);
         const data2 = data.slice(3);
         return (
-
             <div className="App">
                 <header className="App-header">
                     <h1>Rankings</h1>

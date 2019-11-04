@@ -1,11 +1,9 @@
 .App {
-    text-align: center;
     background-color: black;
-
 }
 
 .column h4 {
-    border-bottom: 4px solid #3BFF00;
+    border-bottom: 3px solid #3BFF00;
     margin: 0px;
 }
 
@@ -17,6 +15,7 @@
     flex: 1 1 0px;
     padding: 1%;
     border: 1px solid #3BFF00;
+    font-size: 80%;
 }
 
 .row {
@@ -53,7 +52,7 @@
 
 .App-ignore td, .ignore td {
     border: none;
-    padding: 25px;
+    padding: 20px;
 }
 
 .App-sort p, .App-sort select, .App-sort option {
