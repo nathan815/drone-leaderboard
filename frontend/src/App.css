@@ -1,22 +1,64 @@
 .App {
-  text-align: center;
+    text-align: center;
+    background-color: black;
+
+}
+
+.column h3 {
+    border-bottom: 4px solid #3BFF00;
+    margin: 0px;
 }
 
 .App-logo {
-  height: 40vmin;
+    height: 40vmin;
+}
+
+.column {
+    flex: 1 1 0px;
+    padding: 1%;
+    border: 1px solid #3BFF00;
+}
+
+.row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
 }
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: #3BFF00;
+    width: 80%;
+    margin: 0 auto;
 }
 
-.App-link {
-  color: #09d3ac;
+.App-table {
+    border-collapse: collapse;
+}
+
+.App-table td, th {
+    border: 1px solid #3BFF00;
+    padding: 4px;
+}
+
+.App-table th {
+    padding: 8px;
+}
+
+.App-ignore td, .ignore td {
+    border: none;
+    padding: 25px;
+}
+
+.App-sort p, .App-sort select, .App-sort option {
+    margin: auto;
+    width: 50%;
+    padding: 10px;
+
 }
