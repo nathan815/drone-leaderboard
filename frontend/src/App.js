@@ -49,7 +49,7 @@ class App extends React.Component {
 
             <div className="App">
                 <header className="App-header">
-                    <p><b> Rankings </b></p>
+                    <h1>Rankings</h1>
                     <table className="App-table">
                         <tr>
                             <th> Rank</th>
@@ -89,22 +89,22 @@ class App extends React.Component {
                         </tr>)}
                     </table>
                     <br></br>
-                    <p> Filters </p>
+                    <h3> Filters </h3>
                     <div class="row">
                         <div class="column">
-                            <h3> Groups </h3>
+                            <h4> Groups </h4>
                             <form>
                                 {this.createCheckboxes(dataL.groups)}
                             </form>
                         </div>
                         <div class="column">
-                            <h3> Majors </h3>
+                            <h4> Majors </h4>
                             <form>
                                 {this.createCheckboxes(dataL.majors)}
                             </form>
                         </div>
                         <div class="column">
-                            <h3> Organizations </h3>
+                            <h4> Organizations </h4>
                             <form>
                                 {this.createCheckboxes(dataL.organizations)}
                             </form>
