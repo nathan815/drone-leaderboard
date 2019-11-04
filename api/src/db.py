@@ -51,7 +51,7 @@ class CompetitionDatabase:
               "from competition.positional " \
               "group by flight_id"
         rows = self.session.execute(cql)
-        rows = sorted(rows, key=lambda row: row.latest_ts - row.start_ts, reverse=True)
+        rows = sorted(rows, key=lambda row: row.latest_ts - row.start_ts)
         flights = []
         pilots = set()
         for row in rows:

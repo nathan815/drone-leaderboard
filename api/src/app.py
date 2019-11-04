@@ -1,6 +1,8 @@
 import datetime
 from flask import Flask, request, jsonify
 from flask.json import JSONEncoder
+from flask_cors import CORS
+
 from db import CompetitionDatabase, get_cluster
 
 
@@ -15,6 +17,7 @@ class CustomJSONEncoder(JSONEncoder):
 
 app = Flask(__name__)
 app.json_encoder = CustomJSONEncoder
+CORS(app)
 
 print('Connecting to DSE...')
 db = CompetitionDatabase(get_cluster())
