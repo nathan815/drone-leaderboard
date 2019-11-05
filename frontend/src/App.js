@@ -1,6 +1,5 @@
 import React from 'react';
 import './App.css';
-import dataL from "./dataL.js"
 import Checkbox from "./Checkbox.js"
 
 const API_BASE_URL = 'http://localhost:3001';
