@@ -1,5 +1,6 @@
+import os
 import datetime
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask.json import JSONEncoder
 from flask_cors import CORS
 
@@ -15,13 +16,21 @@ class CustomJSONEncoder(JSONEncoder):
         return super().default(obj)
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../../frontend/build')
 app.json_encoder = CustomJSONEncoder
 CORS(app)
 
 print('Connecting to DSE...')
 db = CompetitionDatabase(get_cluster())
 print('Connected')
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
 
 
 @app.route('/leaderboard')
