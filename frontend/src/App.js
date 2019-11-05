@@ -43,7 +43,7 @@ class App extends React.Component {
         const majors = [...filters.majors].join(',');
         const orgs = [...filters.orgs].join(',');
 
-        fetch(`${API_BASE_URL}/leaderboard?groups=${groups}&majors=${majors}&organizations=${orgs}`)
+        fetch(`${API_BASE_URL}/leaderboard?groups=${groups}&majors=${majors}&orgs=${orgs}`)
             .then(response => response.json())
             .then((rows) => {
                 this.setState({error: null});
@@ -192,7 +192,7 @@ class App extends React.Component {
                         </section>
                         <section>
                             <h2>Organization</h2>
-                            {this.createCheckboxes(this.state.filterPossibleValues.organizations, "orgs")}
+                            {this.createCheckboxes(this.state.filterPossibleValues.orgs, "orgs")}
                         </section>
                     </div>
                 </div>

@@ -55,7 +55,7 @@ def get_filter_options():
     filter_options = {
         'groups': list(db.get_groups()),
         'majors': list(db.get_majors()),
-        'organizations': list(db.get_orgs()),
+        'orgs': list(db.get_orgs()),
     }
     return jsonify(filter_options)
 
