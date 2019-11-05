@@ -6,6 +6,13 @@ import Checkbox from "./Checkbox.js"
 const API_BASE_URL = 'http://localhost:3001';
 const BLANK_FILTER_VALUE = '(empty)';
 
+function millisecondsToMinutesSeconds(ms) {
+    let totalSeconds = ms / 1000;
+    const min = Math.round(totalSeconds / 60);
+    const sec = Math.round(totalSeconds % 60);
+    return `${min}m ${sec}s`;
+}
+
 class App extends React.Component {
 
     state = {
@@ -40,13 +47,13 @@ class App extends React.Component {
         fetch(`${API_BASE_URL}/leaderboard?groups=${groups}&majors=${majors}&organizations=${orgs}`)
             .then(response => response.json())
             .then((rows) => {
-                this.setState({ error: null });
+                this.setState({error: null});
                 this.setState({
                     leaderboardData: rows
                 })
             })
             .catch((error) => {
-                this.setState({ error: 'Error: Unable to fetch leaderboard!'});
+                this.setState({error: 'Error: Unable to fetch leaderboard!'});
             });
     };
 
@@ -54,13 +61,13 @@ class App extends React.Component {
         fetch(`${API_BASE_URL}/filter_values`)
             .then(response => response.json())
             .then(values => {
-                this.setState({ filterError: null });
+                this.setState({filterError: null});
                 this.setState({
                     filterPossibleValues: values
                 });
             })
             .catch((error) => {
-                this.setState({ filterError: 'Error: Unable to fetch filters'});
+                this.setState({filterError: 'Error: Unable to fetch filters'});
             });
     };
 
@@ -88,7 +95,7 @@ class App extends React.Component {
             } else {
                 newFilterSet.delete(value);
             }
-            console.log('new',filterName, newFilterSet);
+            console.log('new', filterName, newFilterSet);
             return {
                 filters: {
                     ...state.filters,
@@ -117,11 +124,11 @@ class App extends React.Component {
         return data.map(flight => <tr key={flight.id}>
             <td> {flight.rank} </td>
             <td> {flight.pilot.name} </td>
-            <td> {flight.duration_ms / 1000}s </td>
+            <td> {millisecondsToMinutesSeconds(flight.duration_ms)} </td>
             <td> {flight.group || '-'} </td>
             <td> {flight.pilot.org || '-'} </td>
             <td> {flight.pilot.major || '-'} </td>
-            <td> <small>{flight.id}</small> </td>
+            <td><small>{flight.id}</small></td>
         </tr>);
     };
 
@@ -130,7 +137,7 @@ class App extends React.Component {
     );
 
     render() {
-        const { filterError, leaderboardData } = this.state;
+        const {filterError, leaderboardData} = this.state;
 
         const firstThreeRows = leaderboardData.slice(0, 3);
         const restOfRows = leaderboardData.slice(3);
@@ -174,7 +181,7 @@ class App extends React.Component {
                         Filters
                         <span onClick={this.toggleFilters} className="App-filters-close">&times;</span>
                     </h1>
-                    { filterError && <p>{filterError}</p>}
+                    {filterError && <p>{filterError}</p>}
                     <div className="App-filters-sections">
                         <section>
                             <h2>Group</h2>
@@ -191,7 +198,7 @@ class App extends React.Component {
                     </div>
                 </div>
 
-                { this.state.error && <div className="App-error-box">
+                {this.state.error && <div className="App-error-box">
                     {this.state.error}
                 </div>}
 
