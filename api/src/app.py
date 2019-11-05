@@ -39,9 +39,12 @@ def leaderboard():
     max_limit = 50
     limit_input: int = int(request.args.get('limit', default_limit))
     limit = max(min(limit_input, max_limit), min_limit)
-    group_filter: str = request.args.get('groups', None)
-    groups = set(group_filter.split(',')) if group_filter else None
-    return jsonify(db.get_flights_sorted_by_duration(limit, groups))
+
+    def filter(name):
+        filter_text = request.args.get(name, None)
+        return set(filter_text.split(',')) if filter_text else None
+
+    return jsonify(db.get_flights_sorted_by_duration(limit, filter('groups'), filter('majors'), filter('orgs')))
 
 
 @app.route('/filter_values')

@@ -27,6 +27,7 @@ class Flight:
     start_time: datetime
     end_time: datetime
     duration_ms: int = 0
+    rank: int = 0
 
     def __post_init__(self):
         delta: timedelta = self.end_time - self.start_time
@@ -36,7 +37,7 @@ class Flight:
 def get_cluster(cluster_ips_file: str = 'ips.txt') -> Cluster:
     auth = PlainTextAuthProvider(username=os.environ['DSE_USER'], password=os.environ['DSE_PASS'])
     with open(cluster_ips_file) as ips_file:
-        ips = list(map(lambda ele: ele.strip(), ips_file.read().split(",")))
+        ips = [ip.strip() for ip in ips_file.read().split(",")]
     logger.info(f'Read cluster nodes IPs from {cluster_ips_file}: {ips}')
     return Cluster(contact_points=ips, auth_provider=auth)
 
@@ -45,7 +46,11 @@ class CompetitionDatabase:
     def __init__(self, cluster: Cluster):
         self.session = cluster.connect('competition')
 
-    def get_flights_sorted_by_duration(self, limit: int = None, groups: set = None) -> list:
+    def get_flights_sorted_by_duration(self,
+                                       limit: int = None,
+                                       groups: set = None,
+                                       majors: set = None,
+                                       orgs: set = None) -> list:
         cql = "select flight_id, toTimestamp(flight_id) as start_ts, latest_ts, " \
               "       valid, station_id, name, org_college, major, group " \
               "from competition.positional " \
@@ -54,19 +59,34 @@ class CompetitionDatabase:
         rows = sorted(rows, key=lambda row: row.latest_ts - row.start_ts)
         flights = []
         pilots = set()
+        rank = 0
+
+        if groups:
+            groups = [group.lower() for group in groups]
+        if majors:
+            majors = [major.lower() for major in majors]
+        if orgs:
+            orgs = [org.lower() for org in orgs]
+
         for row in rows:
-            group_excluded = groups and row.group not in groups
-            if not row.valid or group_excluded:
+            group_excluded = groups and row.group.lower() not in groups
+            major_excluded = majors and row.major.lower() not in majors
+            org_excluded = orgs and row.org_college.lower() not in orgs
+
+            if not row.valid or group_excluded or major_excluded or org_excluded:
                 continue
+
             pilot = Pilot(row.name, row.org_college, row.major, row.group)
             # ensure each pilot is represented only once
             if pilot not in pilots:
+                rank += 1
                 flights.append(Flight(
                     id=row.flight_id,
                     pilot=pilot,
                     station_id=row.station_id,
                     start_time=row.start_ts,
-                    end_time=row.latest_ts
+                    end_time=row.latest_ts,
+                    rank=rank
                 ))
                 pilots.add(pilot)
         if limit:

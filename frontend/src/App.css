@@ -1,38 +1,15 @@
 .App {
     background-color: black;
+    color: #3BFF00;
 }
 
-.column h4 {
-    border-bottom: 3px solid #3BFF00;
-    margin: 0px;
-}
-
-.App-logo {
-    height: 40vmin;
-}
-
-.column {
-    flex: 1 1 0px;
-    padding: 1%;
-    border: 1px solid #3BFF00;
-    font-size: 80%;
-}
-
-.row {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-}
-
-.App-header {
-
-    min-height: 100vh;
+.App-content {
+    height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     font-size: calc(10px + 2vmin);
-    color: #3BFF00;
     width: 80%;
     margin: 0 auto;
 }
@@ -43,11 +20,11 @@
 
 .App-table td, th {
     border: 1px solid #3BFF00;
-    padding: 4px;
+    padding: 5px 10px;
 }
 
 .App-table th {
-    padding: 8px;
+    padding: 10px;
 }
 
 .App-ignore td, .ignore td {
@@ -60,4 +37,95 @@
     width: 50%;
     padding: 10px;
 
+}
+
+.App-show-filters-link {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    color: inherit;
+    font-size: 20px;
+    background: black;
+}
+.App-filters {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    background: #001A0A;
+    box-shadow: 0 0 20px black;
+    border-right: 1px solid black;
+
+    max-width: 20%;
+    min-width: 225px;
+    padding: 10px;
+    transform: translateX(-100%);
+    transition: all 0.5s;
+
+    display: flex;
+    flex-direction: column;
+}
+.App-filters.visible {
+    transform: translateX(0);
+}
+
+.App-filters h1 {
+    border-bottom: 1px solid #3BFF00;
+    margin: 0;
+    font-size: 30px;
+    position: relative;
+}
+.App-filters .App-filters-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 115%;
+    line-height: 1;
+    cursor: pointer;
+}
+.App-filters h2 {
+    margin: 0 0 5px;
+    padding: 0 0 5px;
+    border-bottom: 1px dashed #3BFF00;
+    font-size: 20px;
+}
+
+.App-filters section {
+    margin: 15px 0 5px;
+}
+.App-filters-sections {
+    overflow: auto;
+}
+
+.App-error-box {
+    background: #3BFF00;
+    color: #000;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    max-width: 20%;
+    padding: 15px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 10px;
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 7px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #214621;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
