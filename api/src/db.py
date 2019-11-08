@@ -61,14 +61,6 @@ class CompetitionDatabase:
         pilots = set()
         rank = 0
 
-        # lowercase all of the filter values so we can ignore the case
-        if groups:
-            groups = [group.lower() for group in groups]
-        if majors:
-            majors = [major.lower() for major in majors]
-        if orgs:
-            orgs = [org.lower() for org in orgs]
-
         for row in rows:
             if not row.valid:
                 continue
@@ -81,9 +73,9 @@ class CompetitionDatabase:
             pilots.add(pilot)
             rank += 1
 
-            group_excluded = groups and row.group.lower() not in groups
-            major_excluded = majors and row.major.lower() not in majors
-            org_excluded = orgs and row.org_college.lower() not in orgs
+            group_excluded = groups and row.group not in groups
+            major_excluded = majors and row.major not in majors
+            org_excluded = orgs and row.org_college not in orgs
 
             # now actually add this flight to our flights list if it isn't filtered out
             if not (group_excluded or major_excluded or org_excluded):

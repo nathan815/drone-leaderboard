@@ -21,7 +21,6 @@
     border: 1px solid #3BFF00;
     padding: 5px 7px;
 }
-
 .App-table th {
     padding-top: 10px;
     padding-bottom: 10px;
@@ -29,7 +28,7 @@
 
 .App-ignore td, .ignore td {
     border: none;
-    padding: 10px;
+    border-spacing: 10px;
 }
 
 .App-sort p, .App-sort select, .App-sort option {
