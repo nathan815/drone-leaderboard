@@ -19,16 +19,17 @@
 
 .App-table td, th {
     border: 1px solid #3BFF00;
-    padding: 5px 10px;
+    padding: 5px 7px;
 }
 
 .App-table th {
-    padding: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 .App-ignore td, .ignore td {
     border: none;
-    padding: 20px;
+    padding: 10px;
 }
 
 .App-sort p, .App-sort select, .App-sort option {
@@ -38,13 +39,26 @@
 
 }
 
-.App-show-filters-link {
+.App-show-filters-btn {
     position: fixed;
     top: 20px;
     left: 20px;
     color: inherit;
-    font-size: 20px;
-    background: black;
+    font-size: 17px;
+    background: #001A0A;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    padding: 10px 15px;
+    outline: 0;
+    opacity: 0.7;
+    transition: all 0.1s;
+    cursor: pointer;
+}
+.App-show-filters-btn:hover,
+.App-show-filters-btn:focus {
+    border-color: #3BFF00;
+    opacity: 1;
+    transform: scale(1.1) translateX(5px);
 }
 .App-filters {
     position: fixed;
@@ -56,9 +70,9 @@
 
     max-width: 20%;
     min-width: 225px;
-    padding: 10px;
+    padding: 10px 10px 10px 15px;
     transform: translateX(-100%);
-    transition: all 0.5s;
+    transition: all 0.3s;
 
     display: flex;
     flex-direction: column;
@@ -80,6 +94,9 @@
     font-size: 115%;
     line-height: 1;
     cursor: pointer;
+}
+.App-filters .App-filters-close:hover {
+    opacity: 0.6;
 }
 .App-filters h2 {
     margin: 0 0 5px;

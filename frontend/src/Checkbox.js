@@ -2,14 +2,14 @@ import React, {Component} from 'react';
 
 class Checkbox extends Component {
     render() {
-        const {label, isChecked} = this.props;
+        const {label, value, isChecked} = this.props;
 
         return (
             <div className="checkbox">
                 <label>
                     <input
                         type="checkbox"
-                        value={label}
+                        value={value || label}
                         checked={isChecked}
                         onChange={() => this.props.onToggle(!isChecked)}
                     />

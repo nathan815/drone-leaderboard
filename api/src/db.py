@@ -118,7 +118,8 @@ class CompetitionDatabase:
         values = set()
         for row in rows:
             if row.valid:
-                values.add(extract_field(row))
+                row_value = extract_field(row)
+                values.add('none' if row_value == '' else row_value)
         return values
 
     def get_pilots(self) -> set:

@@ -41,8 +41,12 @@ def leaderboard():
     URL query params:
     - limit: int 1-50, default=10
     - groups: comma separated list of pilot groups to include
-    example:
-    /leaderboard?limit=20&groups=faculty,students
+    - majors: comma separated list of pilot majors to include
+    - orgs: comma separated list of pilot orgs to include
+    Note: If any of the filters above are not included or empty, the filter will be ignored
+    Note: Pass 'none' to a filter to include those rows with unspecified value for given field
+    Example:
+    /leaderboard?limit=20&groups=faculty,students&orgs=EMU
     """
     default_limit = 10
     min_limit = 1
@@ -52,7 +56,10 @@ def leaderboard():
 
     def field_filter(name):
         filter_text = request.args.get(name, None)
-        return set(filter_text.split(',')) if filter_text else None
+        filter_values = filter_text.split(',') if filter_text else None
+        if filter_values:
+            return set(['' if value == 'none' else value for value in filter_values])
+        return None
 
     return jsonify(db.get_flights_sorted_by_duration(limit, field_filter('groups'), field_filter('majors'), field_filter('orgs')))
 

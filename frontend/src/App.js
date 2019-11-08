@@ -3,12 +3,13 @@ import './App.css';
 import Checkbox from "./Checkbox.js"
 
 const API_BASE_URL = 'http://localhost:3001';
-const BLANK_FILTER_VALUE = '(empty)';
+const BLANK_FILTER_VALUE = 'none';
+const BLANK_FILTER_LABEL = '(empty)';
 
 function millisecondsToMinutesSeconds(ms) {
     let totalSeconds = ms / 1000;
     const min = Math.round(totalSeconds / 60);
-    const sec = Math.round(totalSeconds % 60);
+    const sec = Math.abs(Math.round(totalSeconds % 60));
     return `${min}m ${sec}s`;
 }
 
@@ -53,20 +54,24 @@ class App extends React.Component {
             })
             .catch((error) => {
                 this.setState({error: 'Error: Unable to fetch leaderboard!'});
+                console.log('leaderboard fetch error', error);
             });
     };
 
     fetchLeaderboardFilters = () => {
         fetch(`${API_BASE_URL}/filter_values`)
             .then(response => response.json())
-            .then(values => {
+            .then(filterTypeValues => {
+                // sort the values for each filter type alphabetically
+                Object.keys(filterTypeValues).forEach(key => filterTypeValues[key].sort());
                 this.setState({filterError: null});
                 this.setState({
-                    filterPossibleValues: values
+                    filterPossibleValues: filterTypeValues
                 });
             })
             .catch((error) => {
                 this.setState({filterError: 'Error: Unable to fetch filters'});
+                console.log('filter fetch error', error);
             });
     };
 
@@ -81,20 +86,14 @@ class App extends React.Component {
         this.fetchLeaderboardFilters();
     };
 
-    setFilterValue = (filterName, value, isSet) => {
-
-        console.log(filterName, value);
-        if (value === BLANK_FILTER_VALUE) value = '';
-
+    setFilterValue = (filterName, value, isChecked) => {
         this.setState(state => {
             const newFilterSet = new Set(state.filters[filterName]);
-            console.log('before filters', filterName, newFilterSet);
-            if (isSet) {
+            if (isChecked) {
                 newFilterSet.add(value);
             } else {
                 newFilterSet.delete(value);
             }
-            console.log('new', filterName, newFilterSet);
             return {
                 filters: {
                     ...state.filters,
@@ -106,12 +105,11 @@ class App extends React.Component {
 
     createCheckbox = (filterName, value) => {
         const isChecked = this.state.filters[filterName].has(value);
-        if (value === '') {
-            value = BLANK_FILTER_VALUE;
-        }
+        const label = value === BLANK_FILTER_VALUE ? BLANK_FILTER_LABEL : value;
         return (
             <Checkbox
-                label={value}
+                value={value}
+                label={label}
                 isChecked={isChecked}
                 onToggle={(newChecked) => this.setFilterValue(filterName, value, newChecked)}
                 key={value}
@@ -124,10 +122,10 @@ class App extends React.Component {
             <td> {flight.rank} </td>
             <td> {flight.pilot.name} </td>
             <td> {millisecondsToMinutesSeconds(flight.duration_ms)} </td>
-            <td> {flight.group || '-'} </td>
+            <td> {flight.pilot.group || '-'} </td>
             <td> {flight.pilot.org || '-'} </td>
             <td> {flight.pilot.major || '-'} </td>
-            <td><small>{flight.id}</small></td>
+            {/*<td><small>{flight.id}</small></td>*/}
         </tr>);
     };
 
@@ -150,21 +148,15 @@ class App extends React.Component {
                         <tr>
                             <th>Rank</th>
                             <th>Name</th>
-                            <th>Flight Time</th>
+                            <th>Time</th>
                             <th>Group</th>
                             <th>Organization</th>
                             <th>Major</th>
-                            <th>Flight ID</th>
+                            {/*<th>Flight ID</th>*/}
                         </tr>
                         {this.renderRows(firstThreeRows)}
                         <tr className="App-ignore">
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td colSpan="6"></td>
                         </tr>
                         {this.renderRows(restOfRows)}
                         </tbody>
@@ -173,7 +165,7 @@ class App extends React.Component {
                     <br/>
                 </div>
 
-                <a href="#" className="App-show-filters-link" onClick={this.toggleFilters}>Filters</a>
+                <button className="App-show-filters-btn" onClick={this.toggleFilters}>Filters</button>
 
                 <div className={`App-filters ${this.state.showFilters && 'visible'}`}>
                     <h1>
