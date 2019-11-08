@@ -61,6 +61,7 @@ class CompetitionDatabase:
         pilots = set()
         rank = 0
 
+        # lowercase all of the filter values so we can ignore the case
         if groups:
             groups = [group.lower() for group in groups]
         if majors:
@@ -69,17 +70,23 @@ class CompetitionDatabase:
             orgs = [org.lower() for org in orgs]
 
         for row in rows:
+            if not row.valid:
+                continue
+            pilot = Pilot(row.name, row.org_college, row.major, row.group)
+
+            # ensure each pilot is represented only once
+            if pilot in pilots:
+                continue
+
+            pilots.add(pilot)
+            rank += 1
+
             group_excluded = groups and row.group.lower() not in groups
             major_excluded = majors and row.major.lower() not in majors
             org_excluded = orgs and row.org_college.lower() not in orgs
 
-            if not row.valid or group_excluded or major_excluded or org_excluded:
-                continue
-
-            pilot = Pilot(row.name, row.org_college, row.major, row.group)
-            # ensure each pilot is represented only once
-            if pilot not in pilots:
-                rank += 1
+            # now actually add this flight to our flights list if it isn't filtered out
+            if not (group_excluded or major_excluded or org_excluded):
                 flights.append(Flight(
                     id=row.flight_id,
                     pilot=pilot,
@@ -88,9 +95,10 @@ class CompetitionDatabase:
                     end_time=row.latest_ts,
                     rank=rank
                 ))
-                pilots.add(pilot)
-        if limit:
-            flights = flights[:limit]
+
+            if len(flights) == limit:
+                break
+
         return flights
 
     def get_flights(self):
