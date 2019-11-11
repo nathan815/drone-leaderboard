@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import Checkbox from "./Checkbox.js"
+import Checkbox from './Checkbox.js';
 
 const API_BASE_URL = 'http://localhost:3001';
 const BLANK_FILTER_VALUE = 'none';
@@ -18,14 +18,15 @@ function filtersQueryStringToObject(queryStr) {
     const parts = queryStr.split('&');
     const filters = {};
     for(const part of parts) {
-        const filterParts = part.split('=');
-        filters[filterParts[0]] = filterParts[1] ? filterParts[1].split(',').map(val => decodeURI(val)) : [];
+        const [name, valueStr] = part.split('=');
+        filters[name] = valueStr ? valueStr.split(',').map(val => decodeURI(val)) : [];
     }
     return filters;
 }
 
 function startingFilterState() {
-    const filters = filtersQueryStringToObject(window.location.href.split('?')[1]);
+    const urlParts = window.location.href.split('?');
+    const filters = filtersQueryStringToObject(urlParts.length >= 2 ? urlParts[1] : null);
     return {
         groups: new Set(filters.groups),
         majors: new Set(filters.majors),
@@ -37,17 +38,18 @@ class App extends React.Component {
 
     state = {
         leaderboardData: [],
-        filterPossibleValues: {},
+        filterValues: {},
         showFilters: false,
-        filters: startingFilterState(),
+        selectedFilterValues: startingFilterState(),
         error: null,
-        filterError: null
+        filterError: null,
+        lastUpdated: null
     };
 
     componentDidMount = () => {
         this.fetchLeaderboardData();
         this.fetchLeaderboardFilters();
-        this.interval = setInterval(() => this.fetchLeaderboardData(), 5000);
+        this.interval = setInterval(this.fetchLeaderboardData, 5000);
     };
 
     componentWillUnmount() {
@@ -55,15 +57,15 @@ class App extends React.Component {
     };
 
     getFiltersQueryString() {
-        const filters = this.state.filters;
-        const groups = [...filters.groups].join(',');
-        const majors = [...filters.majors].join(',');
-        const orgs = [...filters.orgs].join(',');
-        const parts = { groups, majors, orgs };
-        return Object.keys(parts)
-            .filter(key => parts[key].length > 0)
-            .map(key => key + '=' + parts[key])
-            .join('&');
+        const filters = this.state.selectedFilterValues;
+        const parts = [];
+        Object.keys(filters).forEach(key => {
+            const value = Array.from(filters[key]).map(value => encodeURIComponent(value)).join(',');
+            if(value) {
+                parts.push(`${key}=${value}`);
+            }
+        });
+        return parts.join('&');
     }
 
     fetchLeaderboardData = () => {
@@ -74,7 +76,8 @@ class App extends React.Component {
             .then((rows) => {
                 this.setState({
                     error: null,
-                    leaderboardData: rows
+                    leaderboardData: rows,
+                    lastUpdated: new Date()
                 })
             })
             .catch((error) => {
@@ -89,7 +92,7 @@ class App extends React.Component {
             .then(filterTypeValues => {
                 this.setState({
                     filterError: null,
-                    filterPossibleValues: filterTypeValues
+                    filterValues: filterTypeValues
                 });
             })
             .catch((error) => {
@@ -111,15 +114,15 @@ class App extends React.Component {
 
     setFilterValue = (filterName, value, isChecked) => {
         this.setState(state => {
-            const newFilterSet = new Set(state.filters[filterName]);
+            const newFilterSet = new Set(state.selectedFilterValues[filterName]);
             if (isChecked) {
                 newFilterSet.add(value);
             } else {
                 newFilterSet.delete(value);
             }
             return {
-                filters: {
-                    ...state.filters,
+                selectedFilterValues: {
+                    ...state.selectedFilterValues,
                     [filterName]: newFilterSet
                 }
             };
@@ -131,7 +134,7 @@ class App extends React.Component {
     };
 
     createCheckbox = (filterName, value) => {
-        const isChecked = this.state.filters[filterName].has(value);
+        const isChecked = this.state.selectedFilterValues[filterName].has(value);
         const label = value === BLANK_FILTER_VALUE ? BLANK_FILTER_LABEL : value;
         return (
             <Checkbox
@@ -161,10 +164,12 @@ class App extends React.Component {
     );
 
     render() {
-        const {filterError, leaderboardData} = this.state;
+        const {showFilters, selectedFilterValues, filterError, leaderboardData, lastUpdated} = this.state;
 
         const firstThreeRows = leaderboardData.slice(0, 3);
         const restOfRows = leaderboardData.slice(3);
+
+        const filterCount = Object.keys(selectedFilterValues).reduce((count, key) => count + selectedFilterValues[key].size, 0);
 
         return (
             <div className="App">
@@ -175,7 +180,7 @@ class App extends React.Component {
                         <tr>
                             <th>#</th>
                             <th>Name</th>
-                            <th>Time</th>
+                            <th>Flight Time</th>
                             <th>Group</th>
                             <th>Organization</th>
                             <th>Major</th>
@@ -192,9 +197,11 @@ class App extends React.Component {
                     <br/>
                 </div>
 
-                <button className="App-show-filters-btn" onClick={this.toggleFilters}>Filters</button>
+                <button className="App-show-filters-btn" onClick={this.toggleFilters}>
+                    Filters { filterCount > 0 && `(${filterCount})`}
+                </button>
 
-                <div className={`App-filters ${this.state.showFilters && 'visible'}`}>
+                <div className={`App-filters ${showFilters && 'visible'}`}>
                     <h1>
                         Filters
                         <span onClick={this.toggleFilters} className="App-filters-close">&times;</span>
@@ -203,22 +210,28 @@ class App extends React.Component {
                     <div className="App-filters-sections">
                         <section>
                             <h2>Group</h2>
-                            {this.createCheckboxes(this.state.filterPossibleValues.groups, "groups")}
+                            {this.createCheckboxes(this.state.filterValues.groups, "groups")}
                         </section>
                         <section>
                             <h2>Major</h2>
-                            {this.createCheckboxes(this.state.filterPossibleValues.majors, "majors")}
+                            {this.createCheckboxes(this.state.filterValues.majors, "majors")}
                         </section>
                         <section>
                             <h2>Organization</h2>
-                            {this.createCheckboxes(this.state.filterPossibleValues.orgs, "orgs")}
+                            {this.createCheckboxes(this.state.filterValues.orgs, "orgs")}
                         </section>
                     </div>
                 </div>
 
-                {this.state.error && <div className="App-error-box">
+                {this.state.error &&
+                <div className="App-error-box">
                     {this.state.error}
                 </div>}
+
+                {lastUpdated &&
+                <span className="App-leaderboard-last-updated">
+                    Updated: {lastUpdated.toLocaleString()}
+                </span>}
 
             </div>
         );

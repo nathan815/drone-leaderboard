@@ -45,7 +45,7 @@
     left: 20px;
     color: inherit;
     font-size: 17px;
-    background: #001A0A;
+    background: #000;
     border: 1px solid transparent;
     border-radius: 5px;
     padding: 10px 15px;
@@ -124,6 +124,13 @@
     font-size: 20px;
     font-weight: bold;
     border-radius: 10px;
+}
+.App-leaderboard-last-updated {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-size: 14px;
+    opacity: 0.5;
 }
 
 /* width */
