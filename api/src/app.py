@@ -57,9 +57,17 @@ def leaderboard():
     def field_filter(name):
         filter_text = request.args.get(name, None)
         filter_values = filter_text.split(',') if filter_text else None
-        if filter_values:
-            return set(['' if value == 'none' else value for value in filter_values])
-        return None
+        if not filter_values:
+            return None
+
+        filter_values_set = set()
+        for value in filter_values:
+            if value == 'none':
+                filter_values_set.add('')
+                filter_values_set.add(None)
+            else:
+                filter_values_set.add(value)
+        return filter_values_set
 
     return jsonify(db.get_flights_sorted_by_duration(limit, field_filter('groups'), field_filter('majors'), field_filter('orgs')))
 
@@ -70,9 +78,9 @@ def get_filter_options():
     Outputs JSON object containing all the filter values for groups, majors, and organizations
     """
     filter_options = {
-        'groups': list(db.get_groups()),
-        'majors': list(db.get_majors()),
-        'orgs': list(db.get_orgs()),
+        'groups': sorted(list(db.get_groups())),
+        'majors': sorted(list(db.get_majors())),
+        'orgs': sorted(list(db.get_orgs())),
     }
     return jsonify(filter_options)
 

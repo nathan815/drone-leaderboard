@@ -1,15 +1,15 @@
 .App {
-    background-color: black;
-    color: #3BFF00;
+    height: 100%;
+    width: 100%;
 }
 
 .App-content {
-    height: 100vh;
+    width: 80%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     font-size: calc(10px + 2vmin);
-    width: 80%;
     margin: 0 auto;
 }
 
@@ -24,6 +24,7 @@
 .App-table th {
     padding-top: 10px;
     padding-bottom: 10px;
+    text-align: left;
 }
 
 .App-ignore td, .ignore td {

@@ -13,17 +13,33 @@ function millisecondsToMinutesSeconds(ms) {
     return `${min}m ${sec}s`;
 }
 
+function filtersQueryStringToObject(queryStr) {
+    if(!queryStr) return {};
+    const parts = queryStr.split('&');
+    const filters = {};
+    for(const part of parts) {
+        const filterParts = part.split('=');
+        filters[filterParts[0]] = filterParts[1] ? filterParts[1].split(',').map(val => decodeURI(val)) : [];
+    }
+    return filters;
+}
+
+function startingFilterState() {
+    const filters = filtersQueryStringToObject(window.location.href.split('?')[1]);
+    return {
+        groups: new Set(filters.groups),
+        majors: new Set(filters.majors),
+        orgs: new Set(filters.orgs),
+    };
+}
+
 class App extends React.Component {
 
     state = {
         leaderboardData: [],
         filterPossibleValues: {},
         showFilters: false,
-        filters: {
-            groups: new Set(),
-            majors: new Set(),
-            orgs: new Set()
-        },
+        filters: startingFilterState(),
         error: null,
         filterError: null
     };
@@ -38,17 +54,26 @@ class App extends React.Component {
         clearInterval(this.interval);
     };
 
-    fetchLeaderboardData = () => {
+    getFiltersQueryString() {
         const filters = this.state.filters;
         const groups = [...filters.groups].join(',');
         const majors = [...filters.majors].join(',');
         const orgs = [...filters.orgs].join(',');
+        const parts = { groups, majors, orgs };
+        return Object.keys(parts)
+            .filter(key => parts[key].length > 0)
+            .map(key => key + '=' + parts[key])
+            .join('&');
+    }
 
-        fetch(`${API_BASE_URL}/leaderboard?groups=${groups}&majors=${majors}&orgs=${orgs}`)
+    fetchLeaderboardData = () => {
+        const queryString = this.getFiltersQueryString();
+
+        fetch(`${API_BASE_URL}/leaderboard?${queryString}`)
             .then(response => response.json())
             .then((rows) => {
-                this.setState({error: null});
                 this.setState({
+                    error: null,
                     leaderboardData: rows
                 })
             })
@@ -62,10 +87,8 @@ class App extends React.Component {
         fetch(`${API_BASE_URL}/filter_values`)
             .then(response => response.json())
             .then(filterTypeValues => {
-                // sort the values for each filter type alphabetically
-                Object.keys(filterTypeValues).forEach(key => filterTypeValues[key].sort());
-                this.setState({filterError: null});
                 this.setState({
+                    filterError: null,
                     filterPossibleValues: filterTypeValues
                 });
             })
@@ -100,7 +123,11 @@ class App extends React.Component {
                     [filterName]: newFilterSet
                 }
             };
-        }, () => this.fetchLeaderboardData());
+        }, () => {
+            this.fetchLeaderboardData();
+            const str = this.getFiltersQueryString();
+            window.history.replaceState({}, document.title, '/' + (str && '?' + str));
+        });
     };
 
     createCheckbox = (filterName, value) => {
@@ -146,7 +173,7 @@ class App extends React.Component {
                     <table className="App-table">
                         <tbody>
                         <tr>
-                            <th>Rank</th>
+                            <th>#</th>
                             <th>Name</th>
                             <th>Time</th>
                             <th>Group</th>
