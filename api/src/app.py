@@ -92,6 +92,13 @@ def all_pilots():
     """
     return jsonify(list(db.get_pilots()))
 
+@app.route('/latest_flights')
+def latest_flights():
+    """
+    Outputs JSON array of latest flights
+    """
+    return jsonify(list(db.latest_flights()))
+
 
 def main():
     app.run(port=3001, debug=True)

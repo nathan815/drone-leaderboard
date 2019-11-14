@@ -8,8 +8,9 @@ const BLANK_FILTER_LABEL = '(empty)';
 
 function millisecondsToMinutesSeconds(ms) {
     let totalSeconds = ms / 1000;
-    const min = Math.round(totalSeconds / 60);
-    const sec = Math.abs(Math.round(totalSeconds % 60));
+    console.log(totalSeconds);
+    const min = Math.floor(totalSeconds / 60);
+    const sec = Math.floor(Math.abs(totalSeconds % 60));
     return `${min}m ${sec}s`;
 }
 
@@ -38,6 +39,7 @@ class App extends React.Component {
 
     state = {
         leaderboardData: [],
+        latestFlights: [],
         filterValues: {},
         showFilters: false,
         selectedFilterValues: startingFilterState(),
@@ -49,6 +51,7 @@ class App extends React.Component {
     componentDidMount = () => {
         this.fetchLeaderboardData();
         this.fetchLeaderboardFilters();
+        this.fetchLatestFlights();
         this.interval = setInterval(this.fetchLeaderboardData, 5000);
     };
 
@@ -68,6 +71,20 @@ class App extends React.Component {
         return parts.join('&');
     }
 
+    fetchLatestFlights = () => {
+        fetch(`${API_BASE_URL}/latest_flights`)
+            .then(response => response.json())
+            .then((rows) => {
+                this.setState({
+                    latestFlights: rows
+                });
+            })
+            .catch((error) => {
+                console.log('latest flights err', error);
+            });
+
+    };
+    
     fetchLeaderboardData = () => {
         const queryString = this.getFiltersQueryString();
 
@@ -78,7 +95,7 @@ class App extends React.Component {
                     error: null,
                     leaderboardData: rows,
                     lastUpdated: new Date()
-                })
+                });
             })
             .catch((error) => {
                 this.setState({error: 'Error: Unable to fetch leaderboard!'});
@@ -155,7 +172,7 @@ class App extends React.Component {
             <td> {flight.pilot.group || '-'} </td>
             <td> {flight.pilot.org || '-'} </td>
             <td> {flight.pilot.major || '-'} </td>
-            {/*<td><small>{flight.id}</small></td>*/}
+            <td><small>{flight.id}</small></td>
         </tr>);
     };
 
@@ -174,6 +191,10 @@ class App extends React.Component {
         return (
             <div className="App">
                 <div className="App-content">
+                    <div className="Recent-flights">
+                        <h3>Most Recent Flights</h3>
+                        { this.state.latestFlights.map(name => <ul>{name}</ul>)}
+                    </div>
                     <h1>Rankings</h1>
                     <table className="App-table">
                         <tbody>
@@ -184,7 +205,7 @@ class App extends React.Component {
                             <th>Group</th>
                             <th>Organization</th>
                             <th>Major</th>
-                            {/*<th>Flight ID</th>*/}
+                            <th>Flight ID</th>
                         </tr>
                         {this.renderRows(firstThreeRows)}
                         <tr className="App-ignore">

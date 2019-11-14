@@ -96,6 +96,14 @@ class CompetitionDatabase:
     def get_flights(self):
         return self.session.execute("select * from competition.positional group by flight_id")
 
+    def latest_flights(self):
+        rows = self.session.execute("select * from competition.positional group by flight_id limit 2")
+        print(rows)
+        names = []
+        for row in rows:
+            names.append(row.name)
+        return names
+
     def get_groups(self) -> set:
         return self._get_unique_column_values(lambda row: row.group)
 
