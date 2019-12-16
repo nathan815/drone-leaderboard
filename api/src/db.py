@@ -62,7 +62,7 @@ class CompetitionDatabase:
         rank = 0
 
         for row in rows:
-            if not row.valid:
+            if row.valid is False:
                 continue
             pilot = Pilot(row.name, row.org_college, row.major, row.group)
 
@@ -97,11 +97,18 @@ class CompetitionDatabase:
         return self.session.execute("select * from competition.positional group by flight_id")
 
     def latest_flights(self):
-        rows = self.session.execute("select * from competition.positional group by flight_id limit 2")
+        cql = "select flight_id, toTimestamp(flight_id) as start_ts, latest_ts, " \
+              "       valid, station_id, name, org_college, major, group " \
+              "from competition.positional " \
+              "group by flight_id"
+        rows = self.session.execute(cql)
+        rows = sorted(rows, key=lambda row: row.latest_ts, reverse=True)
         print(rows)
         names = []
         for row in rows:
             names.append(row.name)
+            if len(names) == 2:
+                break
         return names
 
     def get_groups(self) -> set:
